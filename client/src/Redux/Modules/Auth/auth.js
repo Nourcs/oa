@@ -5,9 +5,15 @@ export const fetchUser = () => dispatch => {
   firebase.auth().onAuthStateChanged(function(res) {
     if (res) {
       let { uid, photoURL, displayName } = res;
+      let firstName = displayName.split(" ")[0];
+      let lastName =
+        displayName.split(" ").length === 2
+          ? displayName.split(" ")[1]
+          : displayName.split(" ")[2];
+
       dispatch({
         type: FETCH_USER,
-        payload: { uid, photoURL, displayName }
+        payload: { uid, photoURL, firstName, lastName, displayName }
       });
     } else {
       return dispatch({ type: FETCH_USER });

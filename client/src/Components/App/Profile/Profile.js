@@ -11,17 +11,18 @@ class Profile extends Component {
   }
   render() {
     console.log(this.props);
+    let { currentUser } = this.props;
     return (
       <Fragment>
         <Navbar />
         <div className="jumbotron jumbotron-fluid">
           <div className="container text-center">
             <img
-              src={this.props.currentUser.photoURL}
+              src={currentUser.photoURL}
               style={{ borderRadius: "100%", width: 200 }}
               className="img-thumbnail mx-auto d-block mb-3"
             />
-            <h1>{this.props.currentUser.displayName}</h1>
+            <h1>{currentUser.displayName}</h1>
             <p className="lead mb-0">
               <i className="fas fa-ellipsis-h" style={{ fontSize: 30 }} />
             </p>

@@ -1,5 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { fetchUser } from "../../../Redux/Modules/Auth/auth";
 import firebase from "../../../Config/firebase";
 
 class Navbar extends Component {
@@ -20,6 +22,8 @@ class Navbar extends Component {
       });
   };
   render() {
+    let { currentUser } = this.props;
+
     return (
       <Fragment>
         <nav className="navbar navbar-expand navbar-light bg-light">
@@ -29,7 +33,15 @@ class Navbar extends Component {
           <ul className="navbar-nav ml-auto">
             <li className="nav-item">
               <Link className="nav-link" to="/profile">
-                Profile
+                <img
+                  src={currentUser.photoURL}
+                  style={{
+                    borderRadius: "100%",
+                    height: 25,
+                    marginRight: 10
+                  }}
+                />
+                {currentUser.firstName}
               </Link>
             </li>
             <li className="nav-item">
@@ -50,4 +62,11 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+function mapStateToProps({ currentUser }) {
+  return { currentUser };
+}
+
+export default connect(
+  mapStateToProps,
+  { fetchUser }
+)(Navbar);
