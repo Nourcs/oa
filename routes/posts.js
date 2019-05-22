@@ -13,6 +13,32 @@ router.post("/BRXIArWSf2sCHprS2bQ4/newPost", (req, res, next) => {
   });
 });
 
+router.post("/BRXIArWSf2sCHprS2bQ4/:id/newPost", (req, res, next) => {
+  let post = req.body.newPost;
+  let id = req.params.id;
+
+  User.findOne({ uid: id }).then(to => {
+    User.findOne({ uid: req.body.uid }).then(from => {
+      Post.create({ from, to, post }).then(response => {
+        res.json(response);
+      });
+    });
+  });
+});
+
+router.post("/BRXIArWSf2sCHprS2bQ4/:id/posts", (req, res, next) => {
+  let id = req.params.id;
+  User.findOne({ uid: id }).then(user => {
+    Post.find({ to: user })
+      .sort({ createdAt: -1 })
+      .populate("from")
+      .populate("to")
+      .then(response => {
+        res.json(response);
+      });
+  });
+});
+
 router.post("/BRXIArWSf2sCHprS2bQ4/posts", (req, res, next) => {
   User.findOne({ uid: req.body.uid }).then(user => {
     Post.find({ to: user })
@@ -20,14 +46,7 @@ router.post("/BRXIArWSf2sCHprS2bQ4/posts", (req, res, next) => {
       .populate("from")
       .populate("to")
       .then(response => {
-        let arr = [...response];
-        for (let i = 0; i < arr.length; i++) {
-          User.findById(arr[i].from).then(from => {
-            arr[i].push(from);
-          });
-        }
-        // User.findById(respons);
-        res.json(arr);
+        res.json(response);
       });
   });
 });
