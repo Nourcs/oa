@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 var authRoute = require("./auth");
 var postsRoute = require("./posts");
+var likesRoute = require("./likes");
 const User = require("../models/User");
 
 /* GET home page */
@@ -25,5 +26,6 @@ router.post("/BRXIArWSf2sCHprS2bQ4/people/:id", (req, res, next) => {
 
 router.use("/", authRoute);
 router.use("/", postsRoute);
+router.use("/", likesRoute);
 
 module.exports = router;

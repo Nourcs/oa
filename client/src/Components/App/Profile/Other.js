@@ -63,6 +63,35 @@ class Other extends Component {
       });
   }
 
+  componentDidUpdate = () => {
+    this.updateLikes();
+  };
+
+  updateLikes = () => {
+    let total = document.querySelectorAll(".total-likes");
+    for (let i = 0; i < total.length; i++) {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/likes/${total[i].id}`)
+        .then(res => {
+          total[i].innerText = res.data.total;
+          axios
+            .post(
+              `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/currentUserLiked/${
+                this.props.currentUser.uid
+              }/${total[i].id}`
+            )
+            .then(response => {
+              if (response.data.liked) {
+                let like = document.getElementById(total[i].id);
+                if (like) {
+                  like.classList.add("text-danger");
+                }
+              }
+            });
+        });
+    }
+  };
+
   onPostChange = e => {
     let newPost = e.target.value;
     console.log(newPost);
@@ -73,33 +102,6 @@ class Other extends Component {
 
   newPost = e => {
     e.preventDefault();
-    // if (this.state.newPost.length > 0) {
-    //   axios
-    //     .post(
-    //       `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/${
-    //         this.state.currentProfile.uid
-    //       }/newPost`,
-    //       {
-    //         uid: this.props.currentUser.uid,
-    //         newPost: this.state.newPost
-    //       }
-    //     )
-    //     .then(res => {
-    //       axios
-    //         .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/posts`, {
-    //           uid: this.state.currentProfile.uid
-    //         })
-    //         .then(res => {
-    //           this.setState({ posts: res.data, newPost: "" });
-    //         })
-    //         .catch(err => {
-    //           console.error(err);
-    //         });
-    //     })
-    //     .catch(err => {
-    //       console.error(err);
-    //     });
-    // }
     axios
       .post(
         `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/${
@@ -123,6 +125,24 @@ class Other extends Component {
       });
   };
 
+  onLike = e => {
+    e.target.classList.toggle("text-danger");
+    if (e.target.classList.value.includes("text-danger")) {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/incLike/${e.target.id}`, {
+          from: this.props.currentUser._id
+        })
+        .then(res => {
+          this.updateLikes();
+        });
+    } else {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${e.target.id}`)
+        .then(res => {
+          this.updateLikes();
+        });
+    }
+  };
   render() {
     let { currentProfile } = this.state;
     if (!_.isEmpty(currentProfile)) {
@@ -193,10 +213,15 @@ class Other extends Component {
                           <div className="card-body">
                             <h5>{item.post}</h5>
                             <label className="float-left text-muted">
-                              <i className="fas fa-heart" />
-                              <span className="badge badge-secondary bg-light text-secondary">
-                                2
-                              </span>
+                              <i
+                                className="fas fa-heart"
+                                onClick={this.onLike}
+                                id={item._id}
+                              />
+                              <span
+                                className="badge badge-secondary bg-light text-secondary total-likes"
+                                id={item._id}
+                              />
                             </label>
                           </div>
 

@@ -4,6 +4,7 @@ import { fetchUser } from "../../../Redux/Modules/Auth/auth";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import keys from "../../../Config/keys";
+import "./style.css";
 
 class Profile extends Component {
   constructor(props) {
@@ -13,6 +14,23 @@ class Profile extends Component {
       posts: ""
     };
   }
+
+  componentDidMount() {
+    axios
+      .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/posts`, {
+        uid: this.props.currentUser.uid
+      })
+      .then(res => {
+        this.setState({ posts: res.data });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  componentDidUpdate = () => {
+    this.updateLikes();
+  };
 
   onPostChange = e => {
     let newPost = e.target.value;
@@ -47,21 +65,51 @@ class Profile extends Component {
     }
   };
 
-  componentDidMount() {
-    axios
-      .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/posts`, {
-        uid: this.props.currentUser.uid
-      })
-      .then(res => {
-        this.setState({ posts: res.data });
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }
-
+  updateLikes = () => {
+    let total = document.querySelectorAll(".total-likes");
+    for (let i = 0; i < total.length; i++) {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/likes/${total[i].id}`)
+        .then(res => {
+          total[i].innerText = res.data.total;
+          axios
+            .post(
+              `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/currentUserLiked/${
+                this.props.currentUser.uid
+              }/${total[i].id}`
+            )
+            .then(response => {
+              if (response.data.liked) {
+                let like = document.getElementById(total[i].id);
+                if (like) {
+                  like.classList.add("text-danger");
+                }
+              }
+            });
+        });
+    }
+  };
+  onLike = e => {
+    e.target.classList.toggle("text-danger");
+    if (e.target.classList.value.includes("text-danger")) {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/incLike/${e.target.id}`, {
+          from: this.props.currentUser._id
+        })
+        .then(res => {
+          this.updateLikes();
+        });
+    } else {
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${e.target.id}`)
+        .then(res => {
+          this.updateLikes();
+        });
+    }
+  };
   render() {
     let { currentUser } = this.props;
+
     return (
       <Fragment>
         <div className="jumbotron jumbotron-fluid">
@@ -126,10 +174,15 @@ class Profile extends Component {
                         <div className="card-body">
                           <h5>{item.post}</h5>
                           <label className="float-left text-muted">
-                            <i className="fas fa-heart" />
-                            <span className="badge badge-secondary bg-light text-secondary">
-                              2
-                            </span>
+                            <i
+                              className="fas fa-heart"
+                              onClick={this.onLike}
+                              id={item._id}
+                            />
+                            <span
+                              className="badge badge-secondary bg-light text-secondary total-likes"
+                              id={item._id}
+                            />
                           </label>
                         </div>
 

@@ -21,8 +21,7 @@ const userSchema = new Schema(
     },
     bio: String,
     currentCity: String,
-    nationality: String,
-    email: String
+    nationality: String
   },
   {
     timestamps: true
