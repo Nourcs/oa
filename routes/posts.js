@@ -3,6 +3,7 @@ var router = express.Router();
 
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 
 router.post("/BRXIArWSf2sCHprS2bQ4/newPost", (req, res, next) => {
   let post = req.body.newPost;

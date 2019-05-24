@@ -46,6 +46,7 @@ class Other extends Component {
     if (id === this.props.currentUser.uid) {
       this.setState({ currentUser: true });
     }
+
     axios
       .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/people/${id}`)
       .then(response => {
@@ -64,6 +65,13 @@ class Other extends Component {
   }
 
   componentDidUpdate = () => {
+    let total = document.querySelectorAll(".total-likes");
+    for (let i = 0; i < total.length; i++) {
+      let like = document.getElementById(total[i].id);
+      if (like) {
+        like.classList.remove("text-danger");
+      }
+    }
     this.updateLikes();
   };
 
@@ -82,6 +90,7 @@ class Other extends Component {
             )
             .then(response => {
               if (response.data.liked) {
+                console.log(response.data.liked);
                 let like = document.getElementById(total[i].id);
                 if (like) {
                   like.classList.add("text-danger");

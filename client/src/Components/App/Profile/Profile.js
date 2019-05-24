@@ -29,6 +29,13 @@ class Profile extends Component {
   }
 
   componentDidUpdate = () => {
+    let total = document.querySelectorAll(".total-likes");
+    for (let i = 0; i < total.length; i++) {
+      let like = document.getElementById(total[i].id);
+      if (like) {
+        like.classList.remove("text-danger");
+      }
+    }
     this.updateLikes();
   };
 
@@ -54,6 +61,7 @@ class Profile extends Component {
             })
             .then(res => {
               this.setState({ posts: res.data, newPost: "" });
+              this.updateLikes();
             })
             .catch(err => {
               console.error(err);
@@ -67,6 +75,7 @@ class Profile extends Component {
 
   updateLikes = () => {
     let total = document.querySelectorAll(".total-likes");
+
     for (let i = 0; i < total.length; i++) {
       axios
         .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/likes/${total[i].id}`)
@@ -80,6 +89,12 @@ class Profile extends Component {
             )
             .then(response => {
               if (response.data.liked) {
+                console.log(
+                  "Post Id : ",
+                  total[i],
+                  " liked : ",
+                  response.data.liked
+                );
                 let like = document.getElementById(total[i].id);
                 if (like) {
                   like.classList.add("text-danger");
@@ -199,6 +214,22 @@ class Profile extends Component {
                             className="form-control ml-3"
                             style={{ borderRadius: "100px" }}
                           />
+                        </div>
+                        <div className="card-footer d-flex justify-content-center align-items-center">
+                          <img
+                            src={this.props.currentUser.photoURL}
+                            style={{ height: 25, borderRadius: "100%" }}
+                            alt="profile"
+                          />
+                          <p
+                            type="text"
+                            name="question"
+                            className="form-control ml-3 h-auto mb-0 bg-light"
+                            style={{ border: "none" }}
+                            disabled
+                          >
+                            asssssssssssssssssssssd mas;lkmda slkd jas;ld kas;ld
+                          </p>
                         </div>
                       </div>
                     );
