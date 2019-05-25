@@ -11,7 +11,9 @@ class Profile extends Component {
     super(props);
     this.state = {
       newPost: "",
-      posts: ""
+      newComment: "",
+      posts: [],
+      comments: []
     };
   }
 
@@ -21,7 +23,25 @@ class Profile extends Component {
         uid: this.props.currentUser.uid
       })
       .then(res => {
-        this.setState({ posts: res.data });
+        this.setState({ posts: res.data }, () => {
+          for (let i = 0; i < this.state.posts.length; i++) {
+            console.log(this.state.posts[i]._id);
+            axios
+              .post(
+                `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/comments/${
+                  this.state.posts[i]._id
+                }`
+              )
+              .then(comment => {
+                if (comment.data.length > 0) {
+                  let comments = [...this.state.comments, ...comment.data];
+                  console.log(comments);
+
+                  this.setState({ comments });
+                }
+              });
+          }
+        });
       })
       .catch(err => {
         console.error(err);
@@ -61,6 +81,7 @@ class Profile extends Component {
             })
             .then(res => {
               this.setState({ posts: res.data, newPost: "" });
+
               this.updateLikes();
             })
             .catch(err => {
@@ -89,12 +110,6 @@ class Profile extends Component {
             )
             .then(response => {
               if (response.data.liked) {
-                console.log(
-                  "Post Id : ",
-                  total[i],
-                  " liked : ",
-                  response.data.liked
-                );
                 let like = document.getElementById(total[i].id);
                 if (like) {
                   like.classList.add("text-danger");
@@ -122,9 +137,48 @@ class Profile extends Component {
         });
     }
   };
+
+  onCommentChange = e => {
+    this.setState({ newComment: e.target.value });
+  };
+
+  newComment = e => {
+    e.preventDefault();
+    let id = e.target.id;
+
+    if (this.state.newComment.length > 0) {
+      console.log("newComment ", this.state.newComment);
+      axios
+        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/newComment/${id}`, {
+          comment: this.state.newComment,
+          from: this.props.currentUser._id
+        })
+        .then(res => {
+          console.log(res.data);
+
+          this.setState({ newComment: "" }, () => {
+            this.setState({ comments: [] });
+            for (let i = 0; i < this.state.posts.length; i++) {
+              axios
+                .post(
+                  `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/comments/${
+                    this.state.posts[i]._id
+                  }`
+                )
+                .then(comment => {
+                  if (comment.data.length > 0) {
+                    let comments = [...this.state.comments, ...comment.data];
+                    this.setState({ comments });
+                  }
+                });
+            }
+          });
+        });
+    }
+  };
+
   render() {
     let { currentUser } = this.props;
-
     return (
       <Fragment>
         <div className="jumbotron jumbotron-fluid">
@@ -201,36 +255,58 @@ class Profile extends Component {
                           </label>
                         </div>
 
-                        <div className="card-footer d-flex justify-content-center align-items-center">
+                        <div className="card-footer d-flex align-items-center">
                           <img
                             src={this.props.currentUser.photoURL}
                             style={{ height: 25, borderRadius: "100%" }}
                             alt="profile"
                           />
-                          <input
-                            type="text"
-                            placeholder="Write a comment..."
-                            name="question"
-                            className="form-control ml-3"
-                            style={{ borderRadius: "100px" }}
-                          />
+                          <form method="post" className="ml-3 w-100">
+                            <input
+                              type="text"
+                              placeholder="What's on your mind?"
+                              name="question"
+                              className="form-control"
+                              onChange={this.onCommentChange}
+                              style={{ borderRadius: "100px" }}
+                            />
+                            <button
+                              type="submit"
+                              className="form-control btn btn-dark my-3 d-none"
+                              onClick={this.newComment}
+                              id={item._id}
+                            >
+                              Share
+                            </button>
+                          </form>
                         </div>
-                        <div className="card-footer d-flex justify-content-center align-items-center">
-                          <img
-                            src={this.props.currentUser.photoURL}
-                            style={{ height: 25, borderRadius: "100%" }}
-                            alt="profile"
-                          />
-                          <p
-                            type="text"
-                            name="question"
-                            className="form-control ml-3 h-auto mb-0 bg-light"
-                            style={{ border: "none" }}
-                            disabled
-                          >
-                            asssssssssssssssssssssd mas;lkmda slkd jas;ld kas;ld
-                          </p>
-                        </div>
+                        {this.state.comments.map((comment, index) => {
+                          if (comment.postId === item._id) {
+                            return (
+                              <div
+                                key={index}
+                                className="card-footer d-flex justify-content-center align-items-center"
+                              >
+                                <img
+                                  src={comment.from.photoURL}
+                                  style={{ height: 25, borderRadius: "100%" }}
+                                  alt="profile"
+                                />
+                                <p
+                                  type="text"
+                                  name="question"
+                                  className="form-control ml-3 h-auto mb-0 bg-light"
+                                  style={{ border: "none" }}
+                                  disabled
+                                >
+                                  {comment.comment}
+                                </p>
+                              </div>
+                            );
+                          } else {
+                            return "";
+                          }
+                        })}
                       </div>
                     );
                   })

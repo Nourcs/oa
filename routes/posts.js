@@ -52,4 +52,21 @@ router.post("/BRXIArWSf2sCHprS2bQ4/posts", (req, res, next) => {
   });
 });
 
+router.post("/BRXIArWSf2sCHprS2bQ4/newComment/:id", (req, res, next) => {
+  let { comment, from } = req.body;
+  let postId = req.params.id;
+  Comment.create({ from, comment, postId }).then(response => {
+    res.json(response);
+  });
+});
+
+router.post("/BRXIArWSf2sCHprS2bQ4/comments/:id", (req, res, next) => {
+  let postId = req.params.id;
+  Comment.find({ postId })
+    .populate("from")
+    .then(response => {
+      res.json(response);
+    });
+});
+
 module.exports = router;
