@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { fetchUser } from "../../../Redux/Modules/Auth/auth";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import axios from "axios";
 import keys from "../../../Config/keys";
 import Post from "./Post";

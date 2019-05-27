@@ -12,9 +12,7 @@ class Profile extends Component {
     super(props);
     this.state = {
       newPost: "",
-      newComment: "",
-      posts: [],
-      comments: []
+      posts: []
     };
   }
 

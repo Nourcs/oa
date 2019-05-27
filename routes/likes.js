@@ -7,11 +7,9 @@ const Like = require("../models/Like");
 
 router.post("/BRXIArWSf2sCHprS2bQ4/likes/:id", (req, res, next) => {
   let id = req.params.id;
-  Like.find({ postId: id })
-    .populate("from")
-    .then(response => {
-      res.json({ total: response.length });
-    });
+  Like.find({ postId: id }).then(response => {
+    res.json({ total: response.length });
+  });
 });
 
 router.post(

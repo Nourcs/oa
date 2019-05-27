@@ -12,19 +12,16 @@ class Post extends Component {
     super(props);
     this.state = {
       comments: [],
-      newComment: ""
+      newComment: "",
+      total: 0,
+      liked: false
     };
   }
 
   componentDidMount() {
-    if (!_.isEmpty(this.props.post)) {
-      let { post } = this.props;
-      let total = document.querySelector(`.likes${this.props.post._id}`);
-      let like = document.getElementById(total.id);
-      if (like) {
-        like.classList.remove("text-danger");
-      }
-      this.updateLikes();
+    let { post } = this.props;
+    if (!_.isEmpty(post)) {
+      this.updateLikes(post);
       axios
         .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/comments/${post._id}`)
         .then(comment => {
@@ -38,15 +35,9 @@ class Post extends Component {
 
   componentWillReceiveProps(props) {
     this.setState({ comments: [] });
-    let total = document.querySelector(`.likes${this.props.post._id}`);
-    let like = document.getElementById(total.id);
-    if (like) {
-      like.classList.remove("text-danger");
-      this.updateLikes();
-    }
-
-    if (!_.isEmpty(props.post)) {
-      let { post } = props;
+    let { post } = props;
+    if (!_.isEmpty(post)) {
+      this.updateLikes(post);
       axios
         .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/comments/${post._id}`)
         .then(comment => {
@@ -58,47 +49,43 @@ class Post extends Component {
     }
   }
 
-  updateLikes = () => {
-    let total = document.querySelector(`.likes${this.props.post._id}`);
-    console.log("total Id = ", total.id);
+  updateLikes = post => {
     axios
-      .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/likes/${total.id}`)
-      .then(res => {
-        total.innerText = res.data.total;
+      .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/likes/${post._id}`)
+      .then(total => {
+        this.setState({ total: total.data.total });
         axios
           .post(
             `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/currentUserLiked/${
               this.props.currentUser.uid
-            }/${total.id}`
+            }/${post._id}`
           )
-          .then(response => {
-            if (response.data.liked) {
-              let like = document.getElementById(total.id);
-              if (like) {
-                like.classList.add("text-danger");
-              }
-            }
+          .then(liked => {
+            this.setState({ liked: liked.data.liked });
           });
       });
   };
 
   onLike = e => {
-    e.target.classList.toggle("text-danger");
-    if (e.target.classList.value.includes("text-danger")) {
-      axios
-        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/incLike/${e.target.id}`, {
-          from: this.props.currentUser._id
-        })
-        .then(res => {
-          this.updateLikes();
-        });
-    } else {
-      axios
-        .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${e.target.id}`)
-        .then(res => {
-          this.updateLikes();
-        });
-    }
+    this.setState({ liked: !this.state.liked }, () => {
+      let { post } = this.props;
+
+      if (this.state.liked) {
+        axios
+          .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/incLike/${post._id}`, {
+            from: this.props.currentUser._id
+          })
+          .then(res => {
+            this.updateLikes(post);
+          });
+      } else {
+        axios
+          .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${post._id}`)
+          .then(res => {
+            this.updateLikes(post);
+          });
+      }
+    });
   };
 
   onCommentChange = e => {
@@ -150,17 +137,49 @@ class Post extends Component {
           <div className="card-body">
             <h5>{post.post}</h5>
             <label className="float-left text-muted">
-              <i className="fas fa-heart" onClick={this.onLike} id={post._id} />
+              <i
+                className={
+                  "fas fa-heart " + (this.state.liked ? "text-danger" : "")
+                }
+                onClick={this.onLike}
+                id={post._id}
+              />
               <span
                 className={
                   "badge badge-secondary bg-light text-secondary likes" +
                   post._id
                 }
                 id={post._id}
-              />
+              >
+                {this.state.total}
+              </span>
             </label>
           </div>
 
+          {this.state.comments.map((comment, index) => {
+            if (index < 3)
+              return (
+                <div
+                  key={index}
+                  className="card-footer d-flex justify-content-center align-items-center"
+                >
+                  <img
+                    src={comment.from.photoURL}
+                    style={{ height: 25, borderRadius: "100%" }}
+                    alt="profile"
+                  />
+                  <p
+                    type="text"
+                    name="question"
+                    className="form-control ml-3 h-auto mb-0 bg-light"
+                    style={{ border: "none" }}
+                    disabled
+                  >
+                    {comment.comment}
+                  </p>
+                </div>
+              );
+          })}
           <div className="card-footer d-flex align-items-center">
             <img
               src={this.props.currentUser.photoURL}
@@ -187,30 +206,6 @@ class Post extends Component {
               </button>
             </form>
           </div>
-          {this.state.comments.map((comment, index) => {
-            if (index < 3)
-              return (
-                <div
-                  key={index}
-                  className="card-footer d-flex justify-content-center align-items-center"
-                >
-                  <img
-                    src={comment.from.photoURL}
-                    style={{ height: 25, borderRadius: "100%" }}
-                    alt="profile"
-                  />
-                  <p
-                    type="text"
-                    name="question"
-                    className="form-control ml-3 h-auto mb-0 bg-light"
-                    style={{ border: "none" }}
-                    disabled
-                  >
-                    {comment.comment}
-                  </p>
-                </div>
-              );
-          })}
         </div>
       );
     } else {
