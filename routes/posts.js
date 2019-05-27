@@ -46,6 +46,7 @@ router.post("/BRXIArWSf2sCHprS2bQ4/posts", (req, res, next) => {
       .sort({ createdAt: -1 })
       .populate("from")
       .populate("to")
+      .limit(5)
       .then(response => {
         res.json(response);
       });
