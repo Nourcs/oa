@@ -23,6 +23,22 @@ router.post("/BRXIArWSf2sCHprS2bQ4/newUser", (req, res, next) => {
   });
 });
 
-router.post("/BRXIArWSf2sCHprS2bQ4/updateUser/:id", (req, res, next) => {});
+router.post("/BRXIArWSf2sCHprS2bQ4/updateUser/:id", (req, res, next) => {
+  let { nationality, currentCity } = req.body;
+  User.findByIdAndUpdate(req.params.id, { nationality, currentCity }).then(
+    user => {
+      res.json(user);
+    }
+  );
+});
+
+router.post("/BRXIArWSf2sCHprS2bQ4/community", (req, res, next) => {
+  let { nationality, currentCity } = req.body;
+  User.find({ nationality, currentCity })
+    .limit(10)
+    .then(users => {
+      res.json(users);
+    });
+});
 
 module.exports = router;
