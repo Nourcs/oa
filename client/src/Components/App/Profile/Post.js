@@ -80,7 +80,9 @@ class Post extends Component {
           });
       } else {
         axios
-          .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${post._id}`)
+          .post(`${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/decLike/${post._id}`, {
+            from: this.props.currentUser._id
+          })
           .then(res => {
             this.updateLikes(post);
           });
@@ -95,7 +97,6 @@ class Post extends Component {
   newComment = e => {
     e.preventDefault();
     let id = e.target.id;
-    let { post } = this.props;
 
     if (this.state.newComment.length > 0) {
       axios
@@ -157,7 +158,7 @@ class Post extends Component {
           </div>
 
           {this.state.comments.map((comment, index) => {
-            if (index < 3)
+            if (index < 3) {
               return (
                 <div
                   key={index}
@@ -179,6 +180,9 @@ class Post extends Component {
                   </p>
                 </div>
               );
+            } else {
+              return "";
+            }
           })}
           <div className="card-footer d-flex align-items-center">
             <img

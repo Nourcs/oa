@@ -70,4 +70,61 @@ router.post("/BRXIArWSf2sCHprS2bQ4/comments/:id", (req, res, next) => {
     });
 });
 
+router.post("/BRXIArWSf2sCHprS2bQ4/follow/:id", (req, res, next) => {
+  let userId = req.params.id;
+  let { currentUser } = req.body;
+
+  User.findOneAndUpdate(
+    { _id: currentUser },
+    { $push: { following: userId } },
+    function(error, success) {
+      if (error) {
+        res.json(error);
+      } else {
+        res.json(success);
+      }
+    }
+  );
+});
+
+router.post("/BRXIArWSf2sCHprS2bQ4/unfollow/:id", (req, res, next) => {
+  let userId = req.params.id;
+  let { currentUser } = req.body;
+
+  User.findOneAndUpdate(
+    { _id: currentUser },
+    { $pull: { following: userId } },
+    function(error, success) {
+      if (error) {
+        res.json(error);
+      } else {
+        res.json(success);
+      }
+    }
+  );
+});
+router.post("/BRXIArWSf2sCHprS2bQ4/followers/:id", (req, res, next) => {
+  let userId = req.params.id;
+  let { currentUser } = req.body;
+  // res.json({ status: false, currentUser });
+  User.findById(currentUser).then(user => {
+    if (user.following.includes(userId)) {
+      res.json({ following: true });
+    } else {
+      res.json({ following: false });
+    }
+  });
+});
+
+router.post("/BRXIArWSf2sCHprS2bQ4/feedPosts", (req, res, next) => {
+  let { following } = req.body;
+  Post.find({ to: { $in: following } })
+    .sort({ createdAt: -1 })
+    .populate("from")
+    .populate("to")
+    .then(response => {
+      res.json(response);
+    });
+});
+
 module.exports = router;

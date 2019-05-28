@@ -21,7 +21,9 @@ const userSchema = new Schema(
     },
     bio: String,
     currentCity: String,
-    nationality: String
+    nationality: String,
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
   },
   {
     timestamps: true

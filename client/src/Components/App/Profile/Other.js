@@ -15,7 +15,8 @@ class Other extends Component {
       posts: [],
       comments: [],
       currentProfile: {},
-      currentUser: false
+      currentUser: false,
+      following: false
     };
   }
 
@@ -33,7 +34,25 @@ class Other extends Component {
             uid: response.data.uid
           })
           .then(res => {
-            this.setState({ posts: res.data, currentProfile: response.data });
+            this.setState(
+              { posts: res.data, currentProfile: response.data },
+              () => {
+                axios
+                  .post(
+                    `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/followers/${
+                      this.state.currentProfile._id
+                    }`,
+                    {
+                      currentUser: this.props.currentUser._id
+                    }
+                  )
+                  .then(res => {
+                    this.setState({
+                      following: res.data.following
+                    });
+                  });
+              }
+            );
           })
           .catch(err => {
             console.error(err);
@@ -69,7 +88,25 @@ class Other extends Component {
             uid: response.data.uid
           })
           .then(res => {
-            this.setState({ posts: res.data, currentProfile: response.data });
+            this.setState(
+              { posts: res.data, currentProfile: response.data },
+              () => {
+                axios
+                  .post(
+                    `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/followers/${
+                      this.state.currentProfile._id
+                    }`,
+                    {
+                      currentUser: this.props.currentUser._id
+                    }
+                  )
+                  .then(res => {
+                    this.setState({
+                      following: res.data.following
+                    });
+                  });
+              }
+            );
           })
           .catch(err => {
             console.error(err);
@@ -79,7 +116,6 @@ class Other extends Component {
 
   onPostChange = e => {
     let newPost = e.target.value;
-    console.log(newPost);
     this.setState({
       newPost
     });
@@ -109,6 +145,33 @@ class Other extends Component {
           });
       });
   };
+  onFollow = () => {
+    this.setState({ following: !this.state.following }, () => {
+      if (!this.state.following) {
+        axios
+          .post(
+            `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/unfollow/${
+              this.state.currentProfile._id
+            }`,
+            { currentUser: this.props.currentUser._id }
+          )
+          .then(() => {
+            this.props.fetchUser();
+          });
+      } else {
+        axios
+          .post(
+            `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/follow/${
+              this.state.currentProfile._id
+            }`,
+            { currentUser: this.props.currentUser._id }
+          )
+          .then(() => {
+            this.props.fetchUser();
+          });
+      }
+    });
+  };
 
   render() {
     let { currentProfile } = this.state;
@@ -126,6 +189,15 @@ class Other extends Component {
                 alt="Profile"
               />
               <h1>{currentProfile.displayName}</h1>
+              {this.state.following ? (
+                <button className="btn btn-light mb-0" onClick={this.onFollow}>
+                  Unfollow
+                </button>
+              ) : (
+                <button className="btn btn-light mb-0" onClick={this.onFollow}>
+                  Follow
+                </button>
+              )}
             </div>
           </div>
           <div className="container">

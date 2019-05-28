@@ -31,7 +31,7 @@ router.post(
 
 router.post("/BRXIArWSf2sCHprS2bQ4/incLike/:id", (req, res, next) => {
   let id = req.params.id;
-  Like.findOne({ postId: id }).then(like => {
+  Like.findOne({ postId: id, from: req.params.from }).then(like => {
     if (!like) {
       Like.create({ postId: id, from: req.body.from })
         .then(response => {
@@ -48,7 +48,7 @@ router.post("/BRXIArWSf2sCHprS2bQ4/incLike/:id", (req, res, next) => {
 
 router.post("/BRXIArWSf2sCHprS2bQ4/decLike/:id", (req, res, next) => {
   let id = req.params.id;
-  Like.findOneAndDelete({ postId: id }).then(response => {
+  Like.findOneAndDelete({ postId: id, from: req.body.from }).then(response => {
     res.json(response);
   });
 });
