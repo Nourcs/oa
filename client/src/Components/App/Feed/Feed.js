@@ -4,12 +4,17 @@ import { fetchUser } from "../../../Redux/Modules/Auth/auth";
 import Post from "../Profile/Post";
 import axios from "axios";
 import keys from "../../../Config/keys";
+
+const publicIp = require("public-ip");
+const iplocation = require("iplocation").default;
+
 class Feed extends Component {
   constructor(props) {
     super(props);
     this.state = {
       following: [],
-      posts: []
+      posts: [],
+      country: ""
     };
   }
 
@@ -20,6 +25,27 @@ class Feed extends Component {
       .then(res => {
         let posts = [...this.state.posts, ...res.data];
         this.setState({ posts });
+        (async () => {
+          iplocation(await publicIp.v4(), [], (error, res) => {
+            if (res) {
+              console.log(res);
+              this.setState({ country: res });
+              axios
+                .post(
+                  `${keys.baseURL}/BRXIArWSf2sCHprS2bQ4/updateUser/${
+                    this.props.currentUser._id
+                  }`,
+                  {
+                    nationality: this.props.currentUser.nationality,
+                    currentCity: res.city
+                  }
+                )
+                .then(res => {
+                  this.props.fetchUser();
+                });
+            }
+          });
+        })();
       });
   }
 
