@@ -28,7 +28,6 @@ class Feed extends Component {
         (async () => {
           iplocation(await publicIp.v4(), [], (error, res) => {
             if (res) {
-              console.log(res);
               this.setState({ country: res });
               axios
                 .post(
@@ -55,9 +54,15 @@ class Feed extends Component {
         <div className="container mt-5">
           <div className="row">
             <div className="col-8 offset-2">
-              {this.state.posts.map((item, index) => {
-                return <Post post={item} key={index} />;
-              })}
+              {this.state.posts.length > 0 ? (
+                this.state.posts.map((item, index) => {
+                  if (item.from.uid !== this.props.currentUser.uid) {
+                    return <Post post={item} key={index} />;
+                  } else return "";
+                })
+              ) : (
+                <div>It might be a good idea if you follow some people :)</div>
+              )}
             </div>
           </div>
         </div>
