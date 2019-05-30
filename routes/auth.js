@@ -3,6 +3,14 @@ var router = express.Router();
 
 const User = require("../models/User");
 
+router.get("/users", (req, res, next) => {
+  User.find()
+    .limit(10)
+    .then(response => {
+      res.json(response);
+    });
+});
+
 router.post("/BRXIArWSf2sCHprS2bQ4/newUser", (req, res, next) => {
   let { email, uid, photoURL, displayName, firstName, lastName } = req.body;
   User.findOne({ uid }).then(user => {
