@@ -13,7 +13,8 @@ class Navbar extends Component {
     this.state = {
       search: "",
       showDropdown: false,
-      people: []
+      people: [],
+      menu: false
     };
   }
 
@@ -53,11 +54,17 @@ class Navbar extends Component {
       });
   };
 
+  showMenu = () => {
+    this.setState({ menu: !this.state.menu });
+  };
+
   render() {
+    console.log(this.state.menu);
     let { currentUser } = this.props;
     let dropdownClass = this.state.showDropdown
       ? "dropdown list-group show-dropdown"
       : "dropdown list-group";
+    let menuClass = this.state.menu ? "menu" : "menu hide-menu";
     return (
       <Fragment>
         <nav className="navbar navbar-expand navbar-light bg-light">
@@ -66,15 +73,15 @@ class Navbar extends Component {
           </Link>
           <input
             type="text"
-            className="form-control d-none d-md-block "
-            style={{ width: "30%", height: 30 }}
+            className="form-control "
+            style={{ width: "50%", height: 30 }}
             placeholder="Search"
             onChange={this.fetchPeople}
             onFocus={this.showDropdown}
             onBlur={this.hideDropdown}
             value={this.state.search}
           />
-          <div className={dropdownClass}>
+          <div className={dropdownClass} style={{ zIndex: 999 }}>
             {this.state.people.map((item, index) => {
               return (
                 <li
@@ -93,7 +100,7 @@ class Navbar extends Component {
               );
             })}
           </div>
-          <ul className="navbar-nav ml-auto">
+          <ul className="navbar-nav ml-auto d-none d-sm-flex d-xs-flex">
             <li className="nav-item">
               <Link className="nav-link" to="/profile">
                 <img
@@ -120,6 +127,60 @@ class Navbar extends Component {
               </Link>
             </li>
           </ul>
+
+          <ul className="navbar-nav ml-auto d-block d-sm-none">
+            <li className="nav-link">
+              <i
+                className={!this.state.menu ? "fas fa-bars" : "fas fa-times"}
+                onClick={this.showMenu}
+              />
+            </li>
+          </ul>
+
+          <div className={menuClass}>
+            <ul className="list-group list-group-flush">
+              <li className="list-group-item w-100 text-center bg-light">
+                <Link
+                  className="nav-link"
+                  to="/profile"
+                  onClick={this.showMenu}
+                >
+                  <img
+                    src={currentUser.photoURL}
+                    style={{
+                      borderRadius: "100%",
+                      height: 25,
+                      marginRight: 10
+                    }}
+                    alt="Profile"
+                  />
+                  {currentUser.firstName}
+                </Link>
+              </li>
+              <li className="list-group-item w-100 text-center bg-light">
+                <Link
+                  className="nav-link"
+                  to="/community"
+                  onClick={this.showMenu}
+                >
+                  Community
+                  <span className="sr-only">(current)</span>
+                </Link>
+              </li>
+              <li className="list-group-item w-100 text-center bg-light">
+                <Link
+                  to="/"
+                  className="nav-link"
+                  onClick={() => {
+                    this.logOut();
+                    this.showMenu();
+                  }}
+                >
+                  Log out
+                </Link>
+              </li>
+            </ul>
+          </div>
         </nav>
       </Fragment>
     );
