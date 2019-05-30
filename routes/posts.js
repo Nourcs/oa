@@ -34,6 +34,7 @@ router.post("/BRXIArWSf2sCHprS2bQ4/:id/posts", (req, res, next) => {
       .sort({ createdAt: -1 })
       .populate("from")
       .populate("to")
+      .limit(5)
       .then(response => {
         res.json(response);
       });
@@ -41,12 +42,13 @@ router.post("/BRXIArWSf2sCHprS2bQ4/:id/posts", (req, res, next) => {
 });
 
 router.post("/BRXIArWSf2sCHprS2bQ4/posts", (req, res, next) => {
+  let { postLength } = req.body;
   User.findOne({ uid: req.body.uid }).then(user => {
     Post.find({ to: user })
       .sort({ createdAt: -1 })
       .populate("from")
       .populate("to")
-      .limit(5)
+      .limit(5 + postLength)
       .then(response => {
         res.json(response);
       });
@@ -117,9 +119,10 @@ router.post("/BRXIArWSf2sCHprS2bQ4/followers/:id", (req, res, next) => {
 });
 
 router.post("/BRXIArWSf2sCHprS2bQ4/feedPosts", (req, res, next) => {
-  let { following } = req.body;
+  let { following, postLength } = req.body;
   Post.find({ to: { $in: following } })
     .sort({ createdAt: -1 })
+    .limit(5 + postLength)
     .populate("from")
     .populate("to")
     .then(response => {
